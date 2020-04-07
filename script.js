@@ -1,6 +1,7 @@
 "use strict"
 const fullarea = $('#fullarea')[0].getContext('2d')
 const display = $('#display')[0].getContext('2d')
+var mod = (x, y, s = 1) => (x % y + y * s) % y
 
 function newTileImage(pallete, image, bpp) {
 	let tile = $('<canvas width="8" height="8"></canvas>')[0].getContext('2d')
@@ -56,31 +57,38 @@ for (let y = 0; y < 64; y++) {
 		)
 	}
 }
+var draw
+{
+	let lnow = 0
+	draw = function () {
+		let now = performance.now()
+		$('#fps')[0].innerHTML = Math.round(1000/(now-lnow))
+		lnow = now
 
-function draw() {
-	let now = performance.now() / 300
+		display.clearRect(0, 0, 480, 360)
 
-	display.clearRect(0, 0, 480, 360)
-
-	for (let y = 0; y < 360; y++) {
-		let xo = Math.floor(Math.sin((now/4) + y / 64) * 64 * (y%2?1:-1))
-		let yo = Math.floor(Math.sin(y / 32) * 8-y)
-		for (let w = 0;w<2;w++)
-			display.drawImage(
-				fullarea.canvas,
-				0,
-				((yo+y)%512+512)%512,
-				512,
-				1,
-				(xo%512-512)%512+(w*512),
-				y,
-				512,
-				1
-			)
+		for (let y = 0; y < 360; y++) {
+			let xo = Math.floor(now / 100 * (y >> 3))
+			let yo = 0
+			let i = mod(xo, 512, -1)
+			for (let w = 0; w < 1 + (i < -32); w++)
+				display.drawImage(
+					fullarea.canvas,
+					0,
+					mod(yo + y, 512),
+					512,
+					1,
+					i + (w * 512),
+					y,
+					512,
+					1
+				)
+		}
+		requestAnimationFrame(draw)
 	}
-	requestAnimationFrame(draw)
 }
 requestAnimationFrame(draw)
+
 function toYUV(R, G, B) {
 	let Y = 0.257 * R + 0.504 * G + 0.098 * B
 	let U = -0.148 * R - 0.291 * G + 0.439 * B
