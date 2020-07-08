@@ -65,11 +65,11 @@ var draw
 		$('#fps')[0].innerHTML = Math.round(1000/(now-lnow))
 		lnow = now
 
-		display.clearRect(0, 0, 480, 360)
+		display.clearRect(0, 0, 480, 360) 
 
 		for (let y = 0; y < 360; y++) {
-			let xo = Math.floor(now / 100 * (y >> 3))
-			let yo = 0
+			let yo = Math.floor(y*(Math.sin(now/100)-1)/5)
+			let xo = Math.floor(now / 100 * (yo+y>>3)-180)
 			let i = mod(xo, 512, -1)
 			for (let w = 0; w < 1 + (i < -32); w++)
 				display.drawImage(
