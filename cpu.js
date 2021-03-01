@@ -7,7 +7,7 @@ let as = Array(65536).fill(0);
 	0b1011000000000001
 ].forEach((e, i) => as[i] = e);
 
-let reg = [0, 0, 0, 0]; // registers
+let reg = [0, 0, 0, 0]; // registers (a, d, m, ci)
 
 function calcMath(c) {
 	let f = (c >> 4) & 15;
@@ -39,8 +39,7 @@ function calcMath(c) {
 			default:
 				throw 'z opcode calcs no good';
 		}
-	}
-	else {
+	} else {
 		let x = reg[1];
 		let y = (c & 1) ? reg[2] : reg[0];
 		if (c & 2) x = ~x;
@@ -78,11 +77,11 @@ function calcMath(c) {
 
 function instruction(c) {
 	if (c & 0x8000) {
-		let math = calcMath(c); // ===================================================needs to become signed short here
+		let math = sShort(calcMath(c)); // ===================================================needs to become signed short here
 		if (c & 8) math = ~math;
 
 		if (c & 0x400) {
-			if (c & (1 << (13 + //change the 12 later
+			if (c & (1 << (13 + //change the 12 later 
 				(math > 0) - (math < 0) // math <=> 0
 			))) c = reg[0];
 		}
